@@ -7,3 +7,7 @@ webService:
   service: "service"
   port: "BasicHttpBinding_IOrderService"
   address: "http://soap-order-ws-v2.us-e1.cloudhub.io/service/BasicHttpBinding_IOrderService"
+  
+autoDiscovery:
+  Id: "17505356"
+  flowName: "bookmyshow-tickets-sys-api-main"
