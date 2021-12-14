@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="faafec37-434f-4e94-a28f-ea5a614fd40b" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<flow name="Offers" doc:id="4df45cec-aab5-4e7f-9b32-d57fcdbc7b1d" >
+		<logger level="INFO" doc:name="start" doc:id="f16fd769-1287-4c61-9450-fecca6da42f3" message='#[output application/json&#10;---&#10;{&#10;	"START": "get/offers - fetching offerCode value",&#10;	"PAYLOAD": payload&#10;}]'/>
+		<set-variable value='#[upper(attributes.queryParams.offercode default "welcome")]' doc:name="offerCode" doc:id="d33f8ee4-7fd8-4fc1-9472-51ff9ee65bac" variableName="offerCode" />
+		<ee:transform doc:name="fetch offerCode" doc:id="5581f407-e025-41c6-8ee5-323d3d2fa609" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import firstWith from dw::core::Arrays
+
+output application/json
+
+var offers = [	
+	{
+		offerCode : "WELCOME",
+		offerValue: 0
+	},
+	{
+		offerCode : "FIRST2",
+		offerValue: 2
+	},
+	{
+		offerCode : "BUMP10",
+		offerValue: 10
+	},
+	{
+		offerCode: "FESTIVE30",
+		offerValue: 30
+	}
+]
+---
+
+offers firstWith  ((val, index) -> val.offerCode == vars.offerCode)
+
+
+	
+
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<validation:is-not-null doc:name="checking for valid offer code" doc:id="172ede52-4e7c-47bf-89c4-69ad0f6c4e06" value="#[payload]" message="Invalid offercode"/>
+		<logger level="INFO" doc:name="end" doc:id="41041708-1fd6-4dfd-8983-8822b90dcb61" message='#[output application/json&#10;---&#10;{&#10;	"END": "get/offers - offercode fetched successfully",&#10;	"PAYLOAD": payload&#10;}]'/>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="602e3614-ffc1-40bc-8a9f-771544cd9456" type="ANY">
+				<ee:transform doc:name="set error payload" doc:id="e19e3b2a-ddf4-4bf0-b6ab-cc1fcd799bae" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error_type:"400 Bad Request",
+	error_description: error.description
+	
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/json
+---
+400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="ERROR" doc:name="error " doc:id="7423c9ea-539f-4b62-8a2d-48b34f325608" message='#[output application/json&#10;---&#10;{&#10;	"ERROR": "get/offers - while fetching offer code",&#10;	"PAYLOAD": payload&#10;}]'/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="Tickets" doc:id="ba4168e6-e4b5-40ba-b70b-46a8e6307170" >
+		<logger level="WARN" doc:name="start" doc:id="771fad84-f90a-48cc-8e28-2249ca61a4a4" message='#[output application/json&#10; --- &#10;{&#10;	"START": "post/tickets - Booking tickets",&#10;	"PAYLOAD": payload&#10;}]'/>
+		<ee:transform doc:name="enrich payload structure" doc:id="6bbe29d3-baec-4cc9-85d0-0dec1a270d4e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "customerId": payload.customername,
+  "totalPrice": payload.totalprice,
+  "orderLineItems": [
+    {
+      "productId": payload.moviename,
+      "quantitiyOnHand": payload.numberofseats,
+      "price": payload.price as String
+    }
+  ],
+  "offercode": payload.offercode,
+  "city": payload.city,
+  "theater": payload.theater,
+  "date": payload.date,
+  "showtime": payload.showtime
+  
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="movieId" ><![CDATA[%dw 2.0
+output application/json
+---
+123]]></ee:set-variable>
+				<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/json
+---
+500]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="changing structure as per the call" doc:id="1d1005c0-d222-43fe-9f88-a13c6a5c5860" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[output application/xml
+ns ns0 http://tempuri.org/
+
+---
+{
+	ns0#CreateOrder: {
+		ns0#Order: {
+			ns0#Items: {
+				(payload.orderLineItems map ( orderLineItem , indexOfOrderLineItem ) -> {
+					ns0#OrderItem: {
+						ns0#ProductId: vars.movieId,
+						ns0#Quantity: orderLineItem.quantitiyOnHand as Number
+					}
+				})
+			},
+			ns0#Status: "new",
+			ns0#TotalPrice: payload.totalPrice,
+			ns0#UserId: payload.customerId
+		}
+	}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="SOAP details" doc:id="2cc21f71-5967-4990-aabb-5121b2bcfec0" message='#[output application/json&#10;---&#10;{&#10; 	"IN-PROCESS": "post/tickets - calling consume operation for SOAP api",&#10; 	"PAYLOAD": payload &#10;}]'/>
+		<wsc:consume doc:name="create order" doc:id="1de479be-0417-40dd-9d41-e18f4604190a" config-ref="Web_Service_Consumer_Config" operation="CreateOrder"/>
+		<ee:transform doc:name="setting success response" doc:id="f2e593c3-6409-44e3-9776-ed2888ae1ff1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Tickets booked successfully!"
+}
+
+
+
+
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/json
+fun checkStatusCode() =
+	if(attributes.additionalTransportData.statusCode == "200")
+		201
+	else
+		attributes.additionalTransportData.statusCode
+---
+checkStatusCode()]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6247aef6-84a2-4e5d-944e-48b157f76768" message='#[output application/json&#10;---&#10;{&#10;	"END" : "post/tickets - ticket(s) booked successfully",&#10;	"PAYLOAD":  payload&#10;}]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="af90cad8-b997-4e00-8b0d-50ca8a67c4ce" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="c708e2b2-c636-4083-8002-87b589a437dc" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error_type: vars.httpStatus,
+	error_description: error.description
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+				<logger level="ERROR" doc:name="error" doc:id="b03a06cc-820b-4063-9a04-7cf98370f253" message='#[output application/json&#10;---&#10;{&#10;	"ERROR": "post/tickets - error occurred while booking tickets",&#10;	"PAYLOAD": payload&#10;	}]'/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

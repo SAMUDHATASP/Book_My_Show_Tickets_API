@@ -1,0 +1,9 @@
+http:
+  host: "0.0.0"
+  port: "8081"
+  
+webService:
+  wsdl: "http://soap-order-ws-v2.us-e1.cloudhub.io/service/BasicHttpBinding_IOrderService?wsdl"
+  service: "service"
+  port: "BasicHttpBinding_IOrderService"
+  address: "http://soap-order-ws-v2.us-e1.cloudhub.io/service/BasicHttpBinding_IOrderService"

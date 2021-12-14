@@ -1,0 +1,141 @@
+#%RAML 1.0 Library
+
+traits:
+
+  client_id_secret_trait:
+    headers:
+      client_id: string
+      client_secret: string
+
+  error_responses_trait:
+    responses:
+      400:
+        body:
+          application/json:
+            type: object
+            properties:
+              error_type: string
+              error_description: string
+            example: {
+              error_type: Bad Request,
+              error_description: Invalid Input
+            }
+      401:
+        body:
+          application/json:
+            type: object
+            properties:
+              error_type: string
+              error_description: string
+            example: {
+              error_type: Unauthorized request,
+              error_description: Invalid Credentials
+            }
+      404:
+        body:
+          application/json:
+            type: object
+            properties:
+              error_type: string
+              error_description: string
+            example: {
+              error_type: Resource Not Found,
+              error_description: Resource Not Found
+            }
+      405:
+        body:
+          application/json:
+            type: object
+            properties:
+              error_type: string
+              error_description: string
+            example: {
+              error_type: Method Not Found,
+              error_description: Method Not Found
+            }
+      500:
+        body:
+          application/json:
+            type: object
+            properties:
+              error_type: string
+              error_description: string
+            example: {
+              error_type: Internal Server Error,
+              error_description: Internal Server Error
+            }
+
+
+types:
+
+  get_movies_response_datatype:
+    type: object
+    properties:
+      moviename: string
+      city: string
+      theater: string
+      date: date-only
+      showtime: time-only
+      price: 
+        type: number
+        format: double
+      availableseats: integer
+
+  post_bookings_request_datatype:
+    type: object
+    properties:
+      customername: string
+      moviename: string
+      city: string
+      theater: string
+      date: date-only
+      showtime: time-only
+      price:
+        type: number
+        format: double
+      numberofseats: integer
+      offercode?: string
+
+  post_bookings_response_datatype:
+    type: object
+    properties:
+      message: string
+      etickets: 
+        type: object
+        properties:
+          customername: string
+          moviename: string
+          city: string
+          theater: string
+          date: date-only
+          showtime: time-only
+          totalprice:
+            type: number
+            format: double
+          numberofseats: integer
+
+  get_offercodes_response_datatype:
+    type: object
+    properties:
+      offercode?: string
+      offervalue:
+        type: number
+        format: double
+
+  post_tickets_request_datatype:
+    type: object
+    properties:
+      customername: string
+      moviename: string
+      city: string
+      theater: string
+      date: date-only
+      showtime: time-only
+      price:
+        type: number
+        format: double
+      totalprice:
+        type: number
+        format: double
+      numberofseats: integer
+      offercode?: string

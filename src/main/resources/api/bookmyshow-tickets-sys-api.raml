@@ -1,0 +1,34 @@
+#%RAML 1.0
+title: bookMyShow-tickets-sys-api
+
+uses:
+  book_lib: /exchange_modules/2018f876-db43-4d14-bc10-235563564af6/bookmyshow-library/1.0.0/bookmyshow-library.raml
+
+/offers:
+  get:
+    is: [book_lib.client_id_secret_trait, book_lib.error_responses_trait]
+    queryParameters:
+      offercode?: string
+    responses:
+      200:
+        body:
+          application/json:
+            type: book_lib.get_offercodes_response_datatype
+            examples:
+              output: !include /exchange_modules/2018f876-db43-4d14-bc10-235563564af6/get_offercodes_response_example/1.0.0/get_offercodes_response_example.raml      
+
+/tickets:
+  post:
+    is: [book_lib.client_id_secret_trait, book_lib.error_responses_trait]
+    body:
+      application/json:
+        type: book_lib.post_tickets_request_datatype
+        examples:
+          input: !include /exchange_modules/2018f876-db43-4d14-bc10-235563564af6/post_tickets_request_example/1.0.0/post_tickets_request_example.raml
+    responses:
+      201:
+        body:
+          application/json:
+            example: {
+              message: Tickets booked successfully!
+            }
