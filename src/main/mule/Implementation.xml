@@ -61,8 +61,7 @@ output application/json
 ---
 {
 	error_type:"400 Bad Request",
-	error_description: error.description
-	
+	error_description: error.description	
 }]]></ee:set-payload>
 					</ee:message>
 					<ee:variables >
