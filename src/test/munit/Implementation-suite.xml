@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="Implementation-suite.xml" />
+	<munit:test name="Tickets-test-success" doc:id="caee8725-e4f9-425c-a19d-ec4613bde52c" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="eacc21ad-4cc3-4251-aefd-c017171d600e" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://Ticketstestsuccess\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://Ticketstestsuccess\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://Ticketstestsuccess\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to Tickets" doc:id="9d34863c-0ea1-4fd4-9a4d-2a226193b6d6" name="Tickets"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="b7fe8a73-45ae-4302-8d41-f6f6487e678f" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import Ticketstestsuccess::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="Offers-test-success" doc:id="4d79987f-df30-411d-b1af-876a9a721f25" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="c48a8258-4893-4e56-a495-59dabfc24d42" >
+				<munit:payload value="#[readUrl('classpath://Offerstestsuccess\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://Offerstestsuccess\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://Offerstestsuccess\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to Offers" doc:id="4cad4f39-3ee5-4f73-884f-d8855305c16a" name="Offers"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="65a13433-4190-4e3d-b4df-aaa5d5442aac" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import Offerstestsuccess::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
